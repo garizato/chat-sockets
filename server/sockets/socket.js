@@ -20,22 +20,24 @@ io.on('connection', (client) => {
         usuarios.addIntegrante(client.id, peticion.nombre, peticion.sala);
 
         client.broadcast.to(peticion.sala).emit('listaIntegrantes', usuarios.getIntegrantesxSala(peticion.sala));
-
+        client.broadcast.to(peticion.sala).emit('crearMensaje', crearMensaje('Administrador', `${ peticion.nombre } se unió al chat`));
         callback(usuarios.getIntegrantesxSala(peticion.sala));
     });
 
-
-    client.on('crearMensaje', (data) => {
+    client.on('crearMensaje', (data, callback) => {
         let integrante = usuarios.getIntegrante(client.id);
 
         let mensaje = crearMensaje(integrante.nombre, data.mensaje);
         client.broadcast.to(integrante.sala).emit('crearMensaje', mensaje);
+        callback(mensaje);
     });
 
     client.on('disconnect', () => {
         let integranteDeleted = usuarios.deleteIntegrante(client.id);
-        client.broadcast.to(integranteDeleted.sala).emit('crearMensaje', crearMensaje('Administrador', `${ integranteDeleted.nombre } abandonó el chat`));
-        client.broadcast.to(integranteDeleted.sala).emit('listaIntegrantes', usuarios.getIntegrantesxSala(integranteDeleted.sala));
+        if (integranteDeleted) {
+            client.broadcast.to(integranteDeleted.sala).emit('crearMensaje', crearMensaje('Administrador', `${ integranteDeleted.nombre } abandonó el chat`));
+            client.broadcast.to(integranteDeleted.sala).emit('listaIntegrantes', usuarios.getIntegrantesxSala(integranteDeleted.sala));
+        }
     });
 
     //Mensajes Privados

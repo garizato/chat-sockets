@@ -25,7 +25,7 @@ class Usuarios {
     }
 
     getIntegrantesxSala(sala) {
-        return this.integrantes.filter(integrante => integrante.sala === sala)
+        return this.integrantes.filter(integrante => integrante.sala === sala);
     }
 
     deleteIntegrante(id) {
